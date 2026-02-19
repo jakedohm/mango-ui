@@ -4,7 +4,8 @@ import { useMangoField } from '~/components/MangoForms.js'
 import { api } from '~/helpers/mango.js'
 
 const props = defineProps({
-  field: Object
+  field: Object,
+  error: Object
 })
 
 const model = defineModel({ type: Object })
@@ -122,7 +123,8 @@ function remove() {
 
       <div>
         <div
-          class="relative z-10 grid grid-cols-3 gap-2 p-2 bg-white rounded-md border border-input"
+          class="relative z-10 grid grid-cols-3 gap-2 p-2 bg-white rounded-md border ring-[3px] ring-transparent transition-shadow"
+          :class="error ? 'border-destructive/40 ring-destructive/20 dark:ring-destructive/40' : 'border-input'"
         >
           <template v-if="hasImage">
             <Item
@@ -182,9 +184,7 @@ function remove() {
           </div>
         </div>
 
-        <div
-          class="mt-[-16px] pt-[16px] rounded-b-md border-t-0 bg-gray-50 border border-input"
-        >
+        <div class="mt-[-16px] pt-[16px] rounded-b-md border-t-0 bg-gray-50 border border-input">
           <div class="p-2">
             <Button
               @click="$fileInput.click()"

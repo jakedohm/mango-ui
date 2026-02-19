@@ -9,7 +9,8 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  name: String
+  name: String,
+  error: Object
 })
 
 const emit = defineEmits(['delete'])
@@ -25,7 +26,6 @@ const emit = defineEmits(['delete'])
       :field="subfield"
       :name="`${name ?? field.name}[${subfield.name}]`"
       v-model="model[subfield.name]"
-      aria-invalid="!!errors?.fields?.[field.name]"
     />
 
     <DropdownMenu v-if="repeatable">

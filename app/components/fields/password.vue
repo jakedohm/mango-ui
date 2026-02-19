@@ -2,7 +2,8 @@
 import { useMangoField } from '~/components/MangoForms.js'
 
 const props = defineProps({
-  field: Object
+  field: Object,
+  error: Object
 })
 
 // to keep from falling through to child
@@ -20,5 +21,5 @@ watch(value, (newValue) => {
 </script>
 
 <template>
-  <Input type="password" v-model="value" :name="field.name" />
+  <Input type="password" v-model="value" :name="field.name" :aria-invalid="!!error" />
 </template>

@@ -3,7 +3,8 @@ import FieldGroupBlock from './_group.vue'
 import { useMangoField } from '~/components/MangoForms.js'
 
 const props = defineProps({
-  field: Object
+  field: Object,
+  error: Object
 })
 
 const model = defineModel({ type: Object })

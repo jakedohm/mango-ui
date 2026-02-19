@@ -1,7 +1,8 @@
 <template>
   <div class="flex shadow-xs rounded-md" :class="{ 'flex-col': !simple }">
     <editor-content
-      class="relative z-10 bg-white border-input placeholder:text-muted-foreground focus-within:border-ring focus-within:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive/40 dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border px-3 py-3 text-base transition-[color,box-shadow] outline-none focus-within:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+      class="relative z-10 bg-white placeholder:text-muted-foreground focus-within:border-ring focus-within:ring-ring/50 dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border px-3 py-3 text-base transition-[color,box-shadow] outline-none focus-within:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ring-[3px] ring-transparent"
+      :class="error ? 'border-destructive/40 ring-destructive/20 dark:ring-destructive/40' : 'border-input'"
       :editor="editor"
     />
     <div
@@ -144,6 +145,10 @@ import {
   Heading6Icon
 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+
+const props = defineProps({
+  error: Object
+})
 
 const simple = ref(false)
 const model = defineModel('model-value', { type: String })

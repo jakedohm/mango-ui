@@ -27,14 +27,15 @@ function deepClone(obj) {
   // Unref Vue refs before cloning
   const value = isRef(obj) ? unref(obj) : obj
   if (value == null || typeof value !== 'object') return value
+
   if (Array.isArray(value)) return value.map(deepClone)
   return Object.fromEntries(
     Object.entries(value).map(([k, v]) => [k, deepClone(v)])
   )
 }
 
-export function useForm(id, { hooks = {}, actions = {} } = {}) {
-  // Initialize form
+export function useForm(id, { hooks = {}, actions = {}, reset = false } = {}) {
+  // Initialize form if it doesn't exist
   if (!forms[id]) {
     forms[id] = {
       status: ref('idle'),
@@ -45,7 +46,14 @@ export function useForm(id, { hooks = {}, actions = {} } = {}) {
       initialFieldValues: ref({})
     }
   }
+
   const form = forms[id]
+
+  // Reset field values only (preserve actions/hooks for child components)
+  if (reset) {
+    form.fieldValues.value = {}
+    form.initialFieldValues.value = {}
+  }
 
   if (actions) {
     form.actions.value = { ...form.actions.value, ...actions }
@@ -73,7 +81,9 @@ export function useForm(id, { hooks = {}, actions = {} } = {}) {
 
   // Reset a field to its initial value
   function resetField(name) {
-    form.fieldValues.value[name] = deepClone(form.initialFieldValues.value[name])
+    form.fieldValues.value[name] = deepClone(
+      form.initialFieldValues.value[name]
+    )
   }
 
   // Reset all fields to initial values
@@ -113,7 +123,7 @@ export function useMangoField({ name, value }) {
   /*
 		Parents will wrap their child values, so children should NOT provide their own values
 	*/
-  const parentField = inject('MangoField')
+  const parentField = inject('MangoField', undefined)
   if (!parentField) {
     form.fieldValues.value[name] = value
     // Store initial value for dirty tracking (only on first registration)

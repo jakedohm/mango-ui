@@ -13,7 +13,8 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 
 const props = defineProps({
-  field: Object
+  field: Object,
+  error: Object
 })
 
 const model = defineModel({ type: String })
@@ -99,6 +100,7 @@ const formattedDate = computed(() => {
           variant="outline"
           class="justify-start text-left font-normal flex-1"
           :class="{ 'text-muted-foreground': !selectedDate }"
+          :aria-invalid="!!error"
         >
           <CalendarIcon class="size-4" />
           {{ formattedDate || 'Pick a date' }}
@@ -113,6 +115,11 @@ const formattedDate = computed(() => {
       </PopoverContent>
     </Popover>
 
-    <Input v-model="timeValue" type="time" class="w-auto" />
+    <Input
+      v-model="timeValue"
+      type="time"
+      class="w-auto"
+      :aria-invalid="!!error"
+    />
   </div>
 </template>

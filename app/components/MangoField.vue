@@ -31,8 +31,9 @@ const isDirty = computed(() => {
 <template>
   <Field :data-invalid="error" class="relative group gap-y-2">
     <div class="flex items-center gap-4 justify-between">
-      <FieldLabel :for="field.name" class="relative w-full pl-1">
+      <FieldLabel :for="field.name" class="relative w-full pl-1 gap-0.5">
         {{ field.displayName || titleCase(field.humanName) }}
+        <span v-if="field.required" class="text-amber-500">*</span>
         <span v-if="readOnly"
           ><PencilOffIcon class="size-3 shrink-0 text-gray-500"
         /></span>
@@ -93,7 +94,7 @@ const isDirty = computed(() => {
       :name="name ?? field.name"
       :placeholder="field.placeholder"
       :disabled="field.computed === true"
-      :aria-invalid="error ? true : false"
+      :error="error"
     />
   </Field>
 

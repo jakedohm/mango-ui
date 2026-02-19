@@ -133,22 +133,6 @@ function titleCase(str) {
             >
               {{ field.displayName || titleCase(field.humanName) }}
             </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    disabled
-                    size="sm"
-                    variant="outline"
-                    class="absolute right-2 bottom-2 flex items-center gap-2 text-gray-500"
-                  >
-                    Filter/Sort
-                    <FunnelPlusIcon class="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent> Coming soon... </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
           <div
             v-for="(link, i) in data"

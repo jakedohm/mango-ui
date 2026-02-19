@@ -4,7 +4,8 @@ import { Mango } from '~/helpers/mango'
 import { useMangoField } from '~/components/MangoForms.js'
 
 const props = defineProps({
-  field: Object
+  field: Object,
+  error: Object
 })
 
 const model = defineModel({ type: [Array, String] })
@@ -60,6 +61,7 @@ const displayText = computed(() => {
           variant="outline"
           role="combobox"
           :aria-expanded="open"
+          :aria-invalid="!!error"
           class="w-full justify-between font-normal"
         >
           <span class="truncate">{{ displayText }}</span>

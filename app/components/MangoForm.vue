@@ -17,22 +17,6 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:form'])
 
-const MangoForm = useForm(props.id, {
-  actions: { submit: handleSubmit }
-})
-const {
-  status,
-  valid,
-  hooks,
-  fieldValues,
-  isFieldDirty,
-  dirty,
-  dirtyFields,
-  resetField,
-  resetForm,
-  markClean
-} = MangoForm
-
 const errors = reactive({
   form: null,
   fields: null
@@ -108,6 +92,22 @@ async function handleSubmit() {
     throw error
   }
 }
+
+const MangoForm = useForm(props.id, {
+  actions: { submit: handleSubmit }
+})
+const {
+  status,
+  valid,
+  hooks,
+  fieldValues,
+  isFieldDirty,
+  dirty,
+  dirtyFields,
+  resetField,
+  resetForm,
+  markClean
+} = MangoForm
 
 const form = reactive({
   fields: {}

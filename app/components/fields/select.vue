@@ -2,7 +2,8 @@
 import { useMangoField } from '~/components/MangoForms.js'
 
 const props = defineProps({
-  field: Object
+  field: Object,
+  error: Object
 })
 
 const model = defineModel({ type: String })
@@ -15,7 +16,7 @@ useMangoField({
 
 <template>
   <Select v-model="model" :multiple="!field.single">
-    <SelectTrigger>
+    <SelectTrigger :aria-invalid="!!error">
       <SelectValue placeholder="Select an option" />
     </SelectTrigger>
     <SelectContent>

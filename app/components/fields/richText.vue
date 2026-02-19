@@ -2,7 +2,8 @@
 import { useMangoField } from '~/components/MangoForms.js'
 
 const props = defineProps({
-  field: Object
+  field: Object,
+  error: Object
 })
 
 const model = defineModel({ type: String })
@@ -14,8 +15,8 @@ useMangoField({
 </script>
 
 <template>
-  <div class="">
-    <TipTap v-model="model" />
+  <div>
+    <TipTap v-model="model" :error="error" />
 
     <!-- For HTML value only -->
     <input

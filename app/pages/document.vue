@@ -82,7 +82,8 @@ const { status, valid, actions } = useForm(id, {
         router.push(`/collections/${collectionName}/${doc.id}`)
       }
     }
-  }
+  },
+  reset: newDocument
 })
 
 // Update recent pages with document title

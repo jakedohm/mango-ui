@@ -3,7 +3,8 @@ import { useMangoField } from '~/components/MangoForms.js'
 import { EyeIcon } from 'lucide-vue-next'
 
 const props = defineProps({
-  field: Object
+  field: Object,
+  error: Object
 })
 
 const model = defineModel({ type: String })
@@ -34,7 +35,10 @@ useMangoField({
 </script>
 
 <template>
-  <div class="relative p-2 border border-input shadow-xs rounded-md bg-white">
+  <div
+    class="relative p-2 border shadow-xs rounded-md bg-white ring-[3px] ring-transparent transition-shadow"
+    :class="error ? 'border-destructive/40 ring-destructive/20 dark:ring-destructive/40' : 'border-input'"
+  >
     <pre
       class="text-xs max-w-full break-all whitespace-pre-wrap overflow-y-hidden transition-[height]"
       :class="[showAll ? '!h-auto' : 'h-54 -mb-2']"

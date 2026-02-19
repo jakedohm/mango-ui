@@ -2,7 +2,8 @@
 import { useMangoField } from '~/components/MangoForms.js'
 
 const props = defineProps({
-  field: Object
+  field: Object,
+  error: Object
 })
 
 const model = defineModel({ type: String })
@@ -14,5 +15,5 @@ useMangoField({
 </script>
 
 <template>
-  <Input v-model="model" :name="field.name" />
+  <Input v-model="model" :name="field.name" :aria-invalid="!!error" />
 </template>
