@@ -1,7 +1,8 @@
 <script setup>
 import { Mango } from '../helpers/mango.js'
 import collections from '../../../mango/config/.collections.json'
-import { CalendarClockIcon, SaveIcon } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
+import { SaveIcon, EllipsisVerticalIcon, TrashIcon } from 'lucide-vue-next'
 import { useForm } from '~/components/MangoForms.js'
 
 const { collection: collectionName, id } = useRoute().params
@@ -34,22 +35,13 @@ const showFields = fields
 const document = ref({})
 const { data } = await Mango[collectionName]({ id })
 
-// Sync data to document ref
-watch(
-  data,
-  (newData) => {
-    if (newData) {
-      Object.assign(document.value, newData)
-    }
-  },
-  { immediate: true, deep: true }
-)
-
 const updatedHuman = computed(() =>
   !newDocument ? formatUpdatedDateTime(document.value.updated) : null
 )
 const title = computed(() =>
-  newDocument ? 'New Document' : document.value?.title || 'Edit'
+  newDocument
+    ? `New ${collection?.titleSingular ?? 'Document'}`
+    : document.value?.title || 'Edit'
 )
 
 const seoTitle = computed(() => {
@@ -75,7 +67,7 @@ useSeoMeta({
   description: () => seoDescription.value
 })
 
-const { status, valid, actions } = useForm(id, {
+const { status, valid, actions, markClean } = useForm(id, {
   hooks: {
     onSuccess: (doc) => {
       if (newDocument) {
@@ -85,6 +77,18 @@ const { status, valid, actions } = useForm(id, {
   },
   reset: newDocument
 })
+
+// Sync data to document ref and mark form as clean
+watch(
+  data,
+  (newData) => {
+    if (newData) {
+      Object.assign(document.value, newData)
+      nextTick(() => markClean())
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 // Update recent pages with document title
 const { updateRecentPageTitle } = useRecentPages()
@@ -124,6 +128,33 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
 })
+
+const confirmingDelete = ref(false)
+let confirmTimeout = null
+
+function deleteDocument() {
+  if (!confirmingDelete.value) {
+    confirmingDelete.value = true
+    confirmTimeout = setTimeout(() => {
+      confirmingDelete.value = false
+    }, 3000)
+    return
+  }
+
+  clearTimeout(confirmTimeout)
+  Mango[collectionName].delete(id).then(() => {
+    toast.success('Document deleted successfully', {
+      richColors: true
+    })
+
+    router.push(`/collections/${collectionName}`)
+  })
+}
+
+function resetDeleteConfirm() {
+  confirmingDelete.value = false
+  clearTimeout(confirmTimeout)
+}
 
 function formatUpdatedDateTime(updatedDate) {
   const updatedToday =
@@ -189,6 +220,31 @@ function formatUpdatedDateTime(updatedDate) {
               <SaveIcon v-else class="size-4" />
               <span>Save</span>
             </Button>
+
+            <DropdownMenu
+              v-if="!newDocument"
+              @update:open="(open) => !open && resetDeleteConfirm()"
+            >
+              <DropdownMenuTrigger as-child>
+                <Button variant="outline" size="icon">
+                  <EllipsisVerticalIcon class="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  variant="destructive"
+                  @select="
+                    (e) => {
+                      if (!confirmingDelete) e.preventDefault()
+                      deleteDocument()
+                    }
+                  "
+                >
+                  <TrashIcon class="size-4" />
+                  {{ confirmingDelete ? 'Confirm?' : 'Delete' }}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </template>
       </PageHeader>

@@ -28,14 +28,14 @@ const route = useRoute()
 const { user, userInitials, fullName, logout: authLogout } = useAuth()
 
 // Page transition loading indicator
-const { isLoading, progress } = useLoadingIndicator()
+const { isLoading, progress } = useLoadingIndicator({ throttle: 300 })
 
 // Progress bar segments: top (0-30%), corner (30-40%), right (40-100%)
 const topProgress = computed(() => Math.min(100, (progress.value / 30) * 100))
-const cornerProgress = computed(() => 
+const cornerProgress = computed(() =>
   progress.value < 30 ? 0 : Math.min(100, ((progress.value - 30) / 10) * 100)
 )
-const rightProgress = computed(() => 
+const rightProgress = computed(() =>
   progress.value < 40 ? 0 : ((progress.value - 40) / 60) * 100
 )
 
@@ -83,7 +83,9 @@ async function logout() {
             <!-- Top edge -->
             <div
               class="absolute -top-px left-0 h-0.5 bg-emerald-500 rounded-r-full transition-[width] duration-100 ease-out"
-              :style="{ width: `calc(${topProgress}% - ${topProgress === 100 ? '10px' : '0px'})` }"
+              :style="{
+                width: `calc(${topProgress}% - ${topProgress === 100 ? '10px' : '0px'})`
+              }"
             />
             <!-- Corner arc -->
             <svg
@@ -107,7 +109,9 @@ async function logout() {
             <!-- Right edge -->
             <div
               class="absolute top-[11px] -right-px w-0.5 bg-emerald-500 rounded-b-full transition-[height] duration-150 ease-out"
-              :style="{ height: `calc(${rightProgress}% - ${rightProgress > 0 ? '11px' : '0px'})` }"
+              :style="{
+                height: `calc(${rightProgress}% - ${rightProgress > 0 ? '11px' : '0px'})`
+              }"
             />
           </div>
           <SidebarContent>

@@ -116,11 +116,8 @@ const isDirty = computed(() => {
     </Transition>
     <FieldDescription
       v-if="field.instructions"
-      class="pt-0.5 text-[14px] leading-tight text-left text-balance"
+      class="py-0.5 text-[14px] leading-tight text-left text-balance text-gray-500/80 border-l-2 pl-4"
     >
-      <p class="font-bold text-gray-600 text-xs uppercase tracking-wider mb-1">
-        Note
-      </p>
       {{ field.instructions }}
     </FieldDescription>
   </div>

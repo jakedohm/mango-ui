@@ -11,6 +11,7 @@ import collections from '../../mango/config/.collections.json'
 
 const router = useRouter()
 const route = useRoute()
+const { user } = useAuth()
 
 const open = ref(false)
 const { meta_k } = useMagicKeys()
@@ -53,6 +54,13 @@ function createDocument(collectionName) {
 }
 const actions = {
   createCollection: createAction(createDocument)
+}
+
+function goToProfile() {
+  if (user.value?.id) {
+    open.value = false
+    router.push(`/collections/members/${user.value.id}`)
+  }
 }
 </script>
 
@@ -111,7 +119,7 @@ const actions = {
       </CommandGroup>
       <CommandSeparator />
       <CommandGroup heading="Account">
-        <CommandItem value="profile">
+        <CommandItem value="profile" @select="goToProfile">
           <SquareUserIcon class="text-gray-600" />
           <span>Profile</span>
         </CommandItem>
