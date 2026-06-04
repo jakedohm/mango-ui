@@ -1,22 +1,37 @@
 import tailwindcss from '@tailwindcss/vite'
 import { existsSync } from 'fs'
-import { resolve } from 'path'
+import { resolve, sep } from 'path'
 
-// Determine the Mango project root. When the UI runs from inside the package
-// (node_modules/mango-cms/mango-ui), the CLI passes MANGO_PROJECT_ROOT so we can
-// find the project's config. When ejected into the project, the parent dir works.
-const projectRoot = process.env.MANGO_PROJECT_ROOT
-  ? resolve(process.env.MANGO_PROJECT_ROOT)
-  : resolve(__dirname, '..')
+// Check a single directory for a Mango config (new mango/config or legacy config/config).
+function configAt(dir: string): string | null {
+  if (existsSync(resolve(dir, 'mango/config/.collections.json'))) return resolve(dir, 'mango/config')
+  if (existsSync(resolve(dir, 'config/config/.collections.json'))) return resolve(dir, 'config/config')
+  return null
+}
 
-// Determine config path based on folder structure (mango/config or config/config)
-let configPath: string
+// Resolve the Mango project config across the ways the UI can run. Order matters:
+//   1. MANGO_PROJECT_ROOT — authoritative hint the CLI passes for dev/build/etc.
+//   2. node_modules boundary — when bundled at <project>/node_modules/mango-cms/mango-ui,
+//      the project root is the dir that contains node_modules. This is the case that
+//      fails during `npm install` (postinstall: nuxt prepare), where the CLI's env is
+//      not propagated to the spawned install.
+//   3. parent dir — when ejected at <project>/mango-ui (or running in-repo).
+// Deterministic lookups only (no unbounded walk-up), so a missing project config can't
+// accidentally resolve to a stray config elsewhere on the machine.
+const candidates: string[] = []
+if (process.env.MANGO_PROJECT_ROOT) candidates.push(resolve(process.env.MANGO_PROJECT_ROOT))
+const parts = __dirname.split(sep)
+const nmIdx = parts.lastIndexOf('node_modules')
+if (nmIdx > 0) candidates.push(parts.slice(0, nmIdx).join(sep))
+candidates.push(resolve(__dirname, '..'))
 
-if (existsSync(resolve(projectRoot, 'mango/config/.collections.json'))) {
-  configPath = resolve(projectRoot, 'mango/config')
-} else if (existsSync(resolve(projectRoot, 'config/config/.collections.json'))) {
-  configPath = resolve(projectRoot, 'config/config')
-} else {
+let configPath: string | null = null
+for (const dir of candidates) {
+  configPath = configAt(dir)
+  if (configPath) break
+}
+
+if (!configPath) {
   throw new Error('Config folder not found. Expected mango/config or config/config with .collections.json')
 }
 
