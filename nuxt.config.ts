@@ -1,9 +1,31 @@
 import tailwindcss from '@tailwindcss/vite'
+import { existsSync } from 'fs'
+import { resolve } from 'path'
+
+// Determine the Mango project root. When the UI runs from inside the package
+// (node_modules/mango-cms/mango-ui), the CLI passes MANGO_PROJECT_ROOT so we can
+// find the project's config. When ejected into the project, the parent dir works.
+const projectRoot = process.env.MANGO_PROJECT_ROOT
+  ? resolve(process.env.MANGO_PROJECT_ROOT)
+  : resolve(__dirname, '..')
+
+// Determine config path based on folder structure (mango/config or config/config)
+let configPath: string
+
+if (existsSync(resolve(projectRoot, 'mango/config/.collections.json'))) {
+  configPath = resolve(projectRoot, 'mango/config')
+} else if (existsSync(resolve(projectRoot, 'config/config/.collections.json'))) {
+  configPath = resolve(projectRoot, 'config/config')
+} else {
+  throw new Error('Config folder not found. Expected mango/config or config/config with .collections.json')
+}
+
+const uiPort = process.env.MANGO_UI_PORT ? parseInt(process.env.MANGO_UI_PORT, 10) : 3001
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  devServer: { port: 3001 },
+  devServer: { port: uiPort },
   modules: ['shadcn-nuxt'],
   shadcn: {
     prefix: '',
@@ -48,6 +70,13 @@ export default defineNuxtConfig({
     }
   },
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        '@config': configPath,
+        '@settings': resolve(configPath, 'settings.json'),
+        '@collections': resolve(configPath, '.collections.json')
+      }
+    }
   }
 })
