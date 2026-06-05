@@ -9,8 +9,13 @@ import {
   Loader2Icon
 } from 'lucide-vue-next'
 
-const { messages, busy, notConfigured, send, reset } = useAssistant()
+const { messages, busy, notConfigured, configured, checkConfig, send, reset } =
+  useAssistant()
 const voice = useRealtimeVoice()
+
+onMounted(() => {
+  if (configured.value === null) checkConfig()
+})
 
 const input = ref('')
 const scroller = ref(null)
@@ -69,6 +74,9 @@ watch(
       </button>
     </div>
 
+    <!-- Key setup (shown until a key is configured) -->
+    <AssistantKeyForm v-if="notConfigured" />
+
     <!-- Messages -->
     <div ref="scroller" class="min-h-0 flex-1 space-y-3 overflow-auto p-3">
       <div v-if="!messages.length" class="px-1 py-6 text-center text-sm text-muted-foreground">
@@ -102,9 +110,6 @@ watch(
       </p>
     </div>
 
-    <p v-if="notConfigured" class="border-t bg-amber-50 px-3 py-1.5 text-xs text-amber-800">
-      Set <code class="font-mono">OPENAI_API_KEY</code> to enable the assistant.
-    </p>
     <p v-if="voice.error.value" class="border-t bg-destructive/10 px-3 py-1.5 text-xs text-destructive">
       {{ voice.error.value }}
     </p>

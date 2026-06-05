@@ -8,13 +8,12 @@
 */
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
-  const apiKey = config.openaiApiKey
+  const { key: apiKey } = resolveOpenAiKey()
   if (!apiKey) {
     setResponseStatus(event, 503)
     return {
       error: 'assistant_not_configured',
-      message:
-        'Set OPENAI_API_KEY in the Mango UI environment to enable the AI assistant.'
+      message: 'Add an OpenAI API key to enable the AI assistant.'
     }
   }
 

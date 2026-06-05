@@ -182,6 +182,44 @@ export const useAssistant = () => {
   const approvals = useState('assistant-approvals', () => [])
   const busy = useState('assistant-busy', () => false)
   const notConfigured = useState('assistant-misconfigured', () => false)
+  const configured = useState('assistant-configured', () => null) // null = unknown
+  const savingKey = useState('assistant-saving-key', () => false)
+
+  // Ask the server whether an OpenAI key is configured (without revealing it).
+  async function checkConfig() {
+    try {
+      const res = await $fetch('/api/assistant/config')
+      configured.value = !!res?.configured
+      notConfigured.value = !res?.configured
+      return res
+    } catch {
+      // Treat an error as "unknown" rather than blocking the UI.
+      return null
+    }
+  }
+
+  // Persist a user-pasted OpenAI key to settings.json via the server.
+  async function saveKey(key) {
+    savingKey.value = true
+    try {
+      const res = await $fetch('/api/assistant/key', {
+        method: 'POST',
+        body: { key }
+      })
+      if (res?.configured) {
+        configured.value = true
+        notConfigured.value = false
+        toast.success('OpenAI key saved', { duration: 3000 })
+        return { ok: true }
+      }
+      return { ok: false, message: res?.message || 'Could not save the key.' }
+    } catch (e) {
+      const message = e?.data?.message || e?.message || 'Could not save the key.'
+      return { ok: false, message }
+    } finally {
+      savingKey.value = false
+    }
+  }
 
   function systemPrompt() {
     return [
@@ -360,6 +398,10 @@ export const useAssistant = () => {
     approvals,
     busy,
     notConfigured,
+    configured,
+    savingKey,
+    checkConfig,
+    saveKey,
     send,
     reset,
     approve,

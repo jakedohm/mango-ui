@@ -81,6 +81,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Server-only — never exposed to the client.
     openaiApiKey: process.env.OPENAI_API_KEY ?? '',
+    // Absolute path to the resolved Mango config dir, so server routes can
+    // read/write settings.json (where the OpenAI key is stored) at runtime.
+    mangoConfigPath: configPath,
     public: {
       autoLoginUsername: process.env.AUTO_LOGIN_USERNAME ?? '',
       autoLoginPassword: process.env.AUTO_LOGIN_PASSWORD ?? '',
