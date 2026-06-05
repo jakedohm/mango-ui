@@ -1,67 +1,91 @@
 <script setup>
-import { ClockIcon, ChevronRightIcon, KeyboardIcon } from 'lucide-vue-next'
+import { PencilRulerIcon, PlusIcon, CheckIcon, RotateCcwIcon } from 'lucide-vue-next'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { WIDGET_TYPES, useDashboard } from '~/composables/useDashboard'
 
-useHead({
-  title: 'Dashboard – Mango'
-})
+useHead({ title: 'Dashboard – Mango' })
 useSeoMeta({
   description:
-    'Mango dashboard. Pick up where you left off, view recent pages, and use the command palette to jump to collections or create documents.'
+    'Your interactive Mango dashboard. Arrange widgets on a grid and ask the built-in AI assistant to find, navigate, and edit your content.'
 })
 
-const { firstName } = useAuth()
-const { recentPages, loadRecentPages } = useRecentPages()
+const { editMode, load, addWidget, resetLayout, loaded } = useDashboard()
 
-// Ensure recent pages are loaded from localStorage (client-only)
 onMounted(() => {
-  loadRecentPages()
+  if (!loaded.value) load()
 })
 
-// Don't show "Home" in the list when we're on the homepage
-const resumePages = computed(() =>
-  recentPages.value.filter((p) => p.path !== '/')
-)
+const widgetOptions = Object.entries(WIDGET_TYPES).map(([key, spec]) => ({
+  key,
+  ...spec
+}))
 </script>
 
 <template>
-  <div class="relative min-h-screen flex flex-col p-8 pt-0">
+  <div class="relative min-h-screen p-6 pt-0">
     <PageHeader>
       <template #title>Dashboard</template>
-    </PageHeader>
-    <div class="max-w-2xl mt-8 space-y-8">
-      <!-- Welcome -->
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">
-          Welcome back{{ firstName ? `, ${firstName}` : '' }}
-        </h1>
-        <p class="mt-1 text-gray-500">
-          Pick up where you left off or jump to any collection or document.
-        </p>
-      </div>
+      <template #right>
+        <div class="flex items-center gap-2 pr-2">
+          <DropdownMenu v-if="editMode">
+            <DropdownMenuTrigger as-child>
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm hover:bg-muted"
+              >
+                <PlusIcon class="size-4" /> Add widget
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" class="w-56">
+              <DropdownMenuItem
+                v-for="opt in widgetOptions"
+                :key="opt.key"
+                @click="addWidget(opt.key)"
+              >
+                <div class="flex flex-col">
+                  <span class="text-sm font-medium">{{ opt.label }}</span>
+                  <span class="text-xs text-muted-foreground">{{ opt.description }}</span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-      <!-- ⌘K CTA -->
-      <div
-        class="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3"
-      >
-        <div
-          class="flex size-9 shrink-0 items-center justify-center rounded-md bg-amber-100"
-        >
-          <KeyboardIcon class="size-4 text-amber-800" />
+          <button
+            v-if="editMode"
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+            @click="resetLayout"
+          >
+            <RotateCcwIcon class="size-4" /> Reset
+          </button>
+
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium"
+            :class="editMode
+              ? 'bg-foreground text-background hover:opacity-90'
+              : 'border hover:bg-muted'"
+            @click="editMode = !editMode"
+          >
+            <component :is="editMode ? CheckIcon : PencilRulerIcon" class="size-4" />
+            {{ editMode ? 'Done' : 'Customize' }}
+          </button>
         </div>
-        <div>
-          <p class="text-sm font-medium text-amber-900">
-            Press
-            <kbd
-              class="rounded border border-amber-300 bg-white px-1.5 py-0.5 font-mono text-xs"
-              >⌘K</kbd
-            >
-            to open the command palette
-          </p>
-          <p class="text-xs text-amber-800/80">
-            Search, jump to collections, or create new documents.
-          </p>
-        </div>
-      </div>
+      </template>
+    </PageHeader>
+
+    <div class="mt-4">
+      <ClientOnly>
+        <GridCanvas />
+        <template #fallback>
+          <div class="h-64 animate-pulse rounded-xl bg-muted/40" />
+        </template>
+      </ClientOnly>
     </div>
   </div>
 </template>

@@ -79,9 +79,15 @@ export default defineNuxtConfig({
     }
   },
   runtimeConfig: {
+    // Server-only — never exposed to the client.
+    openaiApiKey: process.env.OPENAI_API_KEY ?? '',
     public: {
       autoLoginUsername: process.env.AUTO_LOGIN_USERNAME ?? '',
-      autoLoginPassword: process.env.AUTO_LOGIN_PASSWORD ?? ''
+      autoLoginPassword: process.env.AUTO_LOGIN_PASSWORD ?? '',
+      // AI assistant models (overridable per instance).
+      assistantModel: process.env.MANGO_ASSISTANT_MODEL ?? 'gpt-4.1',
+      assistantRealtimeModel:
+        process.env.MANGO_ASSISTANT_REALTIME_MODEL ?? 'gpt-realtime-2'
     }
   },
   vite: {
