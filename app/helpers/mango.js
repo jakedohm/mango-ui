@@ -1,12 +1,13 @@
-// import { algoliaAppId, algoliaSearchKey, algoliaIndex, port, domain } from '../../../mango/config/settings'
-import collections from '../../../mango/config/.collections.json'
-import {
-  port,
-  mangoDomain,
-  useDevAPI
-} from '../../../mango/config/settings.json'
+import collections from '@collections'
+import settings, { port, mangoDomain, useDevAPI } from '@settings'
 import axios from 'axios'
 import { toast } from 'vue-sonner'
+
+// Controllers/endpoints are mounted under this segment on the backend
+// (settings.endpointSegment, defaulting to 'endpoints'). The auth controllers
+// live at `${api}/${endpointSegment}/auth/*`. Read from the default import so a
+// project whose settings.json omits the key doesn't break the JSON named-export.
+const endpointSegment = settings?.endpointSegment || 'endpoints'
 
 // Configure axios to send credentials (cookies) with all requests
 axios.defaults.withCredentials = true
@@ -25,8 +26,8 @@ if (process.env.NODE_ENV != 'production' && useDevAPI) {
   // ws = `ws://localhost:${port}/graphql`;
 }
 
-// Export API base URL for use in auth composable
-export { api }
+// Export API base URL + endpoint segment for use in auth composable
+export { api, endpointSegment }
 
 function transformSearch(search, collectionFields) {
   if (search == null) return search
@@ -199,7 +200,17 @@ const Mango = collections.reduce((a, c) => {
     const data = computed(() => asyncData.data.value?.response)
     const count = computed(() => asyncData.data.value?.count)
 
-    return { ...asyncData, data, count }
+    // return { data, count, ...asyncData }
+    return {
+      data,
+      count,
+      status: asyncData.status,
+      pending: asyncData.pending,
+      error: asyncData.error,
+      refresh: asyncData.refresh,
+      execute: asyncData.execute,
+      clear: asyncData.clear
+    }
   }
 
   let save = (data, options = {}) => {

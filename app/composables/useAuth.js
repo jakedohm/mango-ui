@@ -1,4 +1,4 @@
-import { api } from '../helpers/mango.js'
+import { api, endpointSegment } from '../helpers/mango.js'
 
 export const useAuth = () => {
   const user = useState('auth-user', () => null)
@@ -14,7 +14,7 @@ export const useAuth = () => {
     error.value = null
 
     try {
-      const response = await $fetch(`${api}/endpoints/auth/login`, {
+      const response = await $fetch(`${api}/${endpointSegment}/auth/login`, {
         method: 'POST',
         body: { email, password },
         credentials: 'include'
@@ -42,7 +42,7 @@ export const useAuth = () => {
     isLoading.value = true
 
     try {
-      await $fetch(`${api}/endpoints/auth/logout`, {
+      await $fetch(`${api}/${endpointSegment}/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -72,7 +72,7 @@ export const useAuth = () => {
         }
       }
 
-      const response = await $fetch(`${api}/endpoints/auth/me`, {
+      const response = await $fetch(`${api}/${endpointSegment}/auth/me`, {
         method: 'GET',
         credentials: 'include',
         headers
